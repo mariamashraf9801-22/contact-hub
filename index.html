@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ContactHub - Smart Contact Manager</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+  <!-- Background blobs -->
+  <div class="bg-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="container header-inner">
+      <div class="logo">
+        <div class="logo-icon"><i class="fa-solid fa-address-book"></i></div>
+        <div>
+          <h1>Contact<span>Hub</span></h1>
+          <p>Smart Contact Manager</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="addContactBtn" class="btn-primary"><i class="fa-solid fa-plus"></i><span>Add Contact</span></button>
+        <img class="profile-img" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-4.jpg" alt="Profile" />
+      </div>
+    </div>
+  </header>
+
+  <main class="container main">
+    <!-- Stats: Total / Favorites / Emergency -->
+    <section class="stats">
+      <div class="stat-card">
+        <div class="stat-icon blue"><i class="fa-solid fa-users"></i></div>
+        <div><p class="stat-label">Total</p><p class="stat-value" id="totalCount">0</p></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber"><i class="fa-solid fa-star"></i></div>
+        <div><p class="stat-label">Favorites</p><p class="stat-value" id="favCount">0</p></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon rose"><i class="fa-solid fa-heart-pulse"></i></div>
+        <div><p class="stat-label">Emergency</p><p class="stat-value" id="emgCount">0</p></div>
+      </div>
+    </section>
+
+    <div class="layout">
+      <!-- Main column -->
+      <div class="main-col">
+        <section class="contacts-header">
+          <div>
+            <h2>All Contacts</h2>
+            <p>Manage your personal and professional connections</p>
+          </div>
+        </section>
+
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="searchInput" type="text" placeholder="Search by name, phone, or email..." />
+        </div>
+
+        <section id="contactsGrid" class="contacts-grid"></section>
+        <div id="emptyState" class="empty-state" style="display:none">
+          <i class="fa-regular fa-address-book"></i>
+          <h3>No contacts found</h3>
+          <p>Click "Add Contact" at the top to get started.</p>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <section class="side-card">
+          <div class="side-head amber-bg">
+            <div class="stat-icon amber sm"><i class="fa-solid fa-star"></i></div>
+            <div><h2>Favorites</h2><p>Quick access to starred contacts</p></div>
+          </div>
+          <div class="side-list" id="favList"></div>
+        </section>
+
+        <section class="side-card">
+          <div class="side-head rose-bg">
+            <div class="stat-icon rose sm"><i class="fa-solid fa-heart-pulse"></i></div>
+            <div><h2>Emergency</h2><p>Important contacts for urgent calls</p></div>
+          </div>
+          <div class="side-list" id="emgList"></div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div id="contactModal" class="modal" style="display:none">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-wrap">
+      <div class="modal-box">
+        <div class="modal-head">
+          <h2 id="modalTitle">Add New Contact</h2>
+          <button id="closeModalBtn" class="icon-btn"><i class="fa-solid fa-times"></i></button>
+        </div>
+
+        <form id="contactForm" novalidate>
+          <div class="avatar-block">
+            <div id="avatarPreview" class="avatar-preview"><i class="fa-solid fa-user"></i></div>
+            <label class="upload-btn"><i class="fa-solid fa-camera"></i><span>Change Photo</span>
+              <input type="file" id="avatarInput" accept="image/*" hidden />
+            </label>
+            <input type="hidden" id="avatarData" value="" />
+          </div>
+
+          <div class="field">
+            <label>Full Name <span class="req">*</span></label>
+            <input type="text" id="contactName" placeholder="Enter full name" />
+            <p id="contactNameError" class="err" style="display:none">Name should contain only letters and spaces (2-50 characters)</p>
+          </div>
+
+          <div class="field">
+            <label>Phone Number <span class="req">*</span></label>
+            <input type="text" id="contactPhone" placeholder="e.g., 01012345678" inputmode="tel" />
+            <p id="contactPhoneError" class="err" style="display:none">Please enter a valid Egyptian phone number (010/011/012/015 + 8 digits)</p>
+          </div>
+
+          <div class="field">
+            <label>Email Address</label>
+            <input type="text" id="contactEmail" placeholder="name@example.com" inputmode="email" />
+            <p id="contactEmailError" class="err" style="display:none">Please enter a valid email address</p>
+          </div>
+
+          <div class="field">
+            <label>Address</label>
+            <input type="text" id="contactAddress" placeholder="Enter address" />
+          </div>
+
+          <div class="field">
+            <label>Group</label>
+            <select id="contactGroup">
+              <option value="">Select a group</option>
+              <option value="family">Family</option>
+              <option value="friends">Friends</option>
+              <option value="work">Work</option>
+              <option value="school">School</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Notes</label>
+            <textarea id="contactNotes" rows="2" placeholder="Add notes about this contact"></textarea>
+          </div>
+
+          <div class="checks">
+            <label><input type="checkbox" id="contactFavorite" /> <span><i class="fa-solid fa-star star"></i> Favorite</span></label>
+            <label><input type="checkbox" id="contactEmergency" /> <span><i class="fa-solid fa-heart-pulse emg"></i> Emergency</span></label>
+          </div>
+
+          <input type="hidden" id="contactId" value="" />
+
+          <div class="form-actions">
+            <button type="button" id="cancelModalBtn" class="btn-gray">Cancel</button>
+            <button type="submit" class="btn-primary center"><i class="fa-solid fa-check"></i> Save Contact</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
